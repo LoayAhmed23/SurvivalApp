@@ -6,10 +6,10 @@ from django.contrib.auth.models import (
 )
 
 class UserManager(BaseUserManager):
-    """Users Manger"""
+    """Users Manager"""
 
     def create_user(self, email, password=None, **extra_fields):
-        """Create and and add new Users"""
+        """Create and save a new user"""
         if not email:
             raise ValueError('User must enter email address')
         user = self.model(email=self.normalize_email(email), **extra_fields)
@@ -18,24 +18,29 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, email, password=None,):
-        """Create and and add new superusers"""
-        user = self.create_user(email, password)
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
+    def create_superuser(self, email, password=None, **extra_fields):
+        """Create and save a new superuser"""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
 
-        return user
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    """user model"""
+    """User model"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+    def __str__(self):
+        return self.email
