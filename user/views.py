@@ -10,7 +10,6 @@ from .serializers import (
     ChangePasswordSerializer
 )
 
-
 User = get_user_model()
 
 
@@ -31,6 +30,17 @@ class CreateUserView(generics.CreateAPIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }, status=status.HTTP_201_CREATED)
+
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    """Manage the authenticated user profile"""
+
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        """Retrieve and return authenticated user"""
+        return self.request.user
 
 
 class ChangePasswordView(APIView):
