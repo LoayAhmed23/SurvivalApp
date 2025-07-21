@@ -2,19 +2,25 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import viewsets
 
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 
-from .serializers import (
+
+from user.permissions import IsAdminUser
+from user.serializers import (
     UserSerializer,
     CreateUserSerializer,
     ChangePasswordSerializer,
     PasswordResetRequestSerializer,
     SetNewPasswordSerializer,
+    AdminUserSerializer
 )
+
 
 User = get_user_model()
 
@@ -133,3 +139,16 @@ class PasswordResetConfirmView(APIView):
             {'message': 'Password has been reset successfully.'},
             status=status.HTTP_200_OK
         )
+
+
+class UserAdminViewSet(viewsets.ModelViewSet):
+    """Admin view to manage users"""
+    queryset = User.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def get_queryset(self):
+        return User.objects.all()
+
+    def get_serializer_class(self):
+        return AdminUserSerializer

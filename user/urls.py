@@ -1,11 +1,17 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenObtainPairView,
 )
+from rest_framework.routers import DefaultRouter
 from user import views
 
+
 app_name = 'user'
+
+router = DefaultRouter()
+router.register('admin/users', views.UserAdminViewSet, basename='admin-user')
+
 
 urlpatterns = [
     path('register/', views.CreateUserView.as_view(), name='register'),
@@ -29,5 +35,5 @@ urlpatterns = [
          views.PasswordResetConfirmView.as_view(),
          name='password-reset-confirm'
     ),
-
+    path('', include(router.urls)),
 ]

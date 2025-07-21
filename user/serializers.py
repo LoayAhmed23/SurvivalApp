@@ -96,3 +96,10 @@ class SetNewPasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'name', 'is_active', 'is_staff', 'is_superuser']
+        read_only_fields = ['id', 'email']
