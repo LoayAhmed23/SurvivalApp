@@ -2,12 +2,18 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
+
+from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import send_mail
+
 from .serializers import (
     UserSerializer,
     CreateUserSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    PasswordResetRequestSerializer,
+    SetNewPasswordSerializer,
 )
 
 User = get_user_model()
@@ -23,7 +29,6 @@ class CreateUserView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
 
         return Response({
@@ -45,7 +50,6 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
 class ChangePasswordView(APIView):
     """Change user password"""
-    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)
@@ -55,14 +59,12 @@ class ChangePasswordView(APIView):
         old_password = serializer.validated_data['old_password']
         new_password = serializer.validated_data['new_password']
 
-        # Check if old password is correct
         if not user.check_password(old_password):
             return Response(
                 {'error': 'Old password is incorrect'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Set new password
         user.set_password(new_password)
         user.save()
 
@@ -74,7 +76,6 @@ class ChangePasswordView(APIView):
 
 class LogoutView(APIView):
     """Logout user by blacklisting the refresh token"""
-    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         try:
@@ -90,3 +91,45 @@ class LogoutView(APIView):
                 {'error': 'Invalid token'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class PasswordResetRequestView(APIView):
+    """Send reset password url to user's email"""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = User.objects.get(email=serializer.validated_data['email'])
+
+        token = PasswordResetTokenGenerator().make_token(user)
+        reset_url = request.build_absolute_uri(
+            reverse('user:password-reset-confirm')
+            + f'?email={user.email}&token={token}'
+        )
+
+        subject = 'Your Password Reset Link'
+        message = (
+            f'{reset_url}\n\n'+'This is the rest password link'
+        )
+        send_mail(subject, message, None, [user.email])
+
+        return Response(
+            {'message': 'Password reset link sent.'},
+            status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    """Changes the user's password"""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = SetNewPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'message': 'Password has been reset successfully.'},
+            status=status.HTTP_200_OK
+        )
