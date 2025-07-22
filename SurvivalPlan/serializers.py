@@ -3,9 +3,11 @@ from SurvivalPlan.models import (
     SurvivalPlan,
     Expense
 )
+from Goal.models import Goal
 
 from rest_framework import serializers
 from datetime import date
+
 
 class PlanItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,22 +34,26 @@ class PlanItemSerializer(serializers.ModelSerializer):
 
                 if total_with_new > plan.income:
                     raise serializers.ValidationError(
-                        f"Moving this item will exceed the new plan's income by ({total_with_new - plan.income})"
+                        "Moving this item will exceed the new plan's income "
+                        f"by ({total_with_new - plan.income})"
                     )
             else:
                 related_items = PlanItem.objects.filter(plan=plan).exclude(pk=self.instance.pk)
                 total_with_new = new_amount + sum(item.amount for item in related_items)
                 if total_with_new > plan.income:
                     raise serializers.ValidationError(
-                        f"Editing this item will exceed the income by ({total_with_new - plan.income})"
+                        "Editing this item will exceed the income "
+                        f"by ({total_with_new - plan.income})"
                     )
 
         else:
-            if user != plan.user:
-                raise serializers.ValidationError("You do not own the selected plan.")
 
             plan = attrs.get('plan')
             new_amount = attrs.get('amount', 0)
+
+            if user != plan.user:
+                raise serializers.ValidationError("You do not own the selected plan.")
+
             related_items = PlanItem.objects.filter(plan=plan)
             total_with_new = new_amount + sum(item.amount for item in related_items)
             if total_with_new > plan.income:
@@ -65,6 +71,25 @@ class SurvivalPlanSerializer(serializers.ModelSerializer):
         model = SurvivalPlan
         fields = '__all__'
         read_only_fields = ['user']
+
+    goals = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Goal.objects.all(),
+        required=False
+    )
+
+    def create(self, validated_data):
+        goals = validated_data.pop('goals', [])
+        plan = super().create(validated_data)
+        plan.goals.set(goals)
+        return plan
+
+    def update(self, instance, validated_data):
+        goals = validated_data.pop('goals', None)
+        plan = super().update(instance, validated_data)
+        if goals is not None:
+            plan.goals.set(goals)
+        return plan
 
     def validate_month(self, value):
         return date(value.year, value.month, 1)

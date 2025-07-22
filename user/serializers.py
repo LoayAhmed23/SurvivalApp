@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 User = get_user_model()
@@ -30,7 +30,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
         if password != password_confirm:
             raise serializers.ValidationError('Passwords do not match')
-        
+
         return attrs
 
     def create(self, validated_data):
@@ -62,7 +62,9 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     def validate_email(self, value):
         """Validate that user exists"""
         if not User.objects.filter(email=value, is_active=True).exists():
-            raise serializers.ValidationError("No active user exists with this email")
+            raise serializers.ValidationError(
+                "No active user exists with this email"
+                )
 
         return value
 
@@ -101,5 +103,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
 class AdminUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'is_active', 'is_staff', 'is_superuser']
+        fields = ['id', 'email', 'name', 'is_active',
+                  'is_staff', 'is_superuser']
         read_only_fields = ['id', 'email']

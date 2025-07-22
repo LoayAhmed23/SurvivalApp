@@ -23,7 +23,7 @@ from rest_framework import viewsets
 
 class SurvivalPlanViewSet(viewsets.ModelViewSet):
     serializer_class = SurvivalPlanSerializer
-    
+
     def get_queryset(self):
         return SurvivalPlan.objects.filter(user=self.request.user)
 
@@ -43,7 +43,6 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Expense.objects.filter(user=self.request.user)
-    
-    
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
