@@ -17,8 +17,14 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
 from django.db import connection, reset_queries # SQL DEBUG
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 
 def check_goal_status(goal, plan, user, expenses):
@@ -76,6 +82,7 @@ class SurvivalPlanViewSet(viewsets.ModelViewSet):
     """View for Survival Plan CRUD operations"""
 
     serializer_class = SurvivalPlanSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         return SurvivalPlan.objects.filter(user=self.request.user)
@@ -87,7 +94,7 @@ class SurvivalPlanViewSet(viewsets.ModelViewSet):
 class PlanItemViewSet(viewsets.ModelViewSet):
     """View for PlanItem CRUD operations"""
     serializer_class = PlanItemSerializer
-
+    pagination_class = CustomPagination
     def get_queryset(self):
         return PlanItem.objects.filter(plan__user=self.request.user)
 
@@ -95,6 +102,7 @@ class PlanItemViewSet(viewsets.ModelViewSet):
 class ExpenseViewSet(viewsets.ModelViewSet):
     """View for ViewSet CRUD operations"""
     serializer_class = ExpenseSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         return Expense.objects.filter(user=self.request.user)
