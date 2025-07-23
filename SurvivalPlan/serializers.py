@@ -94,7 +94,19 @@ class SurvivalPlanSerializer(serializers.ModelSerializer):
         return plan
 
     def validate_month(self, value):
-        return date(value.year, value.month, 1)
+        request = self.context.get('request')
+        user = request.user
+
+        normalized_month = date(value.year, value.month, 1)
+
+        if SurvivalPlan.objects.filter(
+            user=user,
+            month__year=normalized_month.year,
+            month__month=normalized_month.month
+        ).exists():
+            raise serializers.ValidationError("A plan already exists for this month.")
+
+        return normalized_month
 
     def to_internal_value(self, data):
         """Accept only date as YYYY-MM"""
