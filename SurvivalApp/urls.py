@@ -22,4 +22,6 @@ urlpatterns = [
     path('api/auth/', include('user.urls')),
     path('api/', include('SurvivalPlan.urls')),
     path('api/', include('Goal.urls')),
+    path('api/stats/', include('stats.urls')),
+    path('__debug__/', include('debug_toolbar.urls')) # SQL DEBUG
 ]

@@ -47,7 +47,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'SurvivalPlan',
     'Goal',
+    'debug_toolbar', # SQL DEBUG
 ]
+
+INTERNAL_IPS = ['127.0.0.1']  # SQL DEBUG
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware', # SQL DEBUG
 ]
 
 ROOT_URLCONF = 'SurvivalApp.urls'
