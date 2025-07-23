@@ -23,5 +23,5 @@ urlpatterns = [
     path('api/', include('SurvivalPlan.urls')),
     path('api/', include('Goal.urls')),
     path('api/stats/', include('stats.urls')),
-    path('__debug__/', include('debug_toolbar.urls')) # SQL DEBUG
+    path('__debug__/', include('debug_toolbar.urls'))  # SQL DEBUG
 ]

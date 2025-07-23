@@ -17,7 +17,13 @@ app_name = 'plan'
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('survival-plans/<int:pk>/goals/', SurvivalPlanGoalsView.as_view(), name='survivalplan-goals'),
-    path('survival-plans/<int:pk>/goals/<int:goal_pk>/', SurvivalPlanGoalDetailView.as_view(), name='survivalplan-goal-detail'),
+    path('survival-plans/<int:pk>/goals/',
+         SurvivalPlanGoalsView.as_view(),
+         name='survivalplan-goals'
+         ),
+    path('survival-plans/<int:pk>/goals/<int:goal_pk>/',
+         SurvivalPlanGoalDetailView.as_view(),
+         name='survivalplan-goal-detail'
+         ),
 
 ]

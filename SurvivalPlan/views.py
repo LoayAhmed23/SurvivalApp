@@ -17,9 +17,10 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 
-from django.db import connection, reset_queries # SQL DEBUG
+from django.db import connection, reset_queries  # SQL DEBUG
+
 
 class CustomPagination(PageNumberPagination):
     page_size = 10
@@ -95,6 +96,7 @@ class PlanItemViewSet(viewsets.ModelViewSet):
     """View for PlanItem CRUD operations"""
     serializer_class = PlanItemSerializer
     pagination_class = CustomPagination
+
     def get_queryset(self):
         return PlanItem.objects.filter(plan__user=self.request.user)
 
@@ -115,7 +117,7 @@ class SurvivalPlanGoalsView(APIView):
     """View to list goals for a survival plan and if they are completed or not"""
 
     def get(self, request, pk):
-        reset_queries() # SQL DEBUG
+        reset_queries()  # SQL DEBUG
 
         try:
             plan = SurvivalPlan.objects.get(pk=pk, user=request.user)
@@ -153,8 +155,8 @@ class SurvivalPlanGoalsView(APIView):
                 'achieved': achieved
             })
 
-        for q in connection.queries: # SQL DEBUG
-            print(q['sql'],"\n", q['time'], "\n") # SQL DEBUG
+        for q in connection.queries:  # SQL DEBUG
+            print(q['sql'], "\n", q['time'], "\n")  # SQL DEBUG
 
         return Response(data)
 
@@ -166,13 +168,14 @@ class SurvivalPlanGoalDetailView(APIView):
         try:
             plan = SurvivalPlan.objects.get(pk=pk, user=request.user)
         except SurvivalPlan.DoesNotExist:
-            return Response({'detail': 'Plan not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'Plan not found.'},
+                            status=status.HTTP_404_NOT_FOUND)
 
         try:
             goal = plan.goals.get(pk=goal_pk)
         except Goal.DoesNotExist:
-            return Response({'detail': 'Goal not found in this plan.'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GoalSerializer(goal)
+            return Response({'detail': 'Goal not found in this plan.'},
+                            status=status.HTTP_404_NOT_FOUND)
 
         if goal.type == 'save_amount' or goal.type == 'save_percent':
             month_expenses = Expense.objects.filter(
@@ -191,6 +194,9 @@ class SurvivalPlanGoalDetailView(APIView):
             total_expenses = sum(exp.amount for exp in month_expenses)
 
         achieved = check_goal_status(goal, plan, request.user, total_expenses)
+
+        serializer = GoalSerializer(goal)
+
         return Response({
             **serializer.data,
             'achieved': achieved
