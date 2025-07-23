@@ -22,6 +22,8 @@ from rest_framework import viewsets
 
 
 class SurvivalPlanViewSet(viewsets.ModelViewSet):
+    """View for Survival Plan CRUD operations"""
+
     serializer_class = SurvivalPlanSerializer
 
     def get_queryset(self):
@@ -32,6 +34,7 @@ class SurvivalPlanViewSet(viewsets.ModelViewSet):
 
 
 class PlanItemViewSet(viewsets.ModelViewSet):
+    """View for PlanItem CRUD operations"""
     serializer_class = PlanItemSerializer
 
     def get_queryset(self):
@@ -39,6 +42,7 @@ class PlanItemViewSet(viewsets.ModelViewSet):
 
 
 class ExpenseViewSet(viewsets.ModelViewSet):
+    """View for ViewSet CRUD operations"""
     serializer_class = ExpenseSerializer
 
     def get_queryset(self):

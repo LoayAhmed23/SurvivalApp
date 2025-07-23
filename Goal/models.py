@@ -6,7 +6,6 @@ User = get_user_model()
 
 
 class Goal(models.Model):
-
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

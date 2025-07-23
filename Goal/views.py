@@ -6,6 +6,7 @@ from Goal.permissions import ReadAuthenticatedOrEditOwn
 
 
 class GoalViewSet(viewsets.ModelViewSet):
+    """View for Goal CRUD operations"""
     serializer_class = GoalSerializer
     permission_classes = [ReadAuthenticatedOrEditOwn]
 

@@ -10,6 +10,7 @@ from datetime import date
 
 
 class PlanItemSerializer(serializers.ModelSerializer):
+    """Serialzer for planitems"""
     class Meta:
         model = PlanItem
         fields = '__all__'
@@ -65,6 +66,7 @@ class PlanItemSerializer(serializers.ModelSerializer):
 
 
 class SurvivalPlanSerializer(serializers.ModelSerializer):
+    """Serialzer for survivalplans"""
     items = PlanItemSerializer(many=True, read_only=True)
 
     class Meta:
@@ -118,6 +120,7 @@ class SurvivalPlanSerializer(serializers.ModelSerializer):
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
+    """Serialzer for expenses"""
     class Meta:
         model = Expense
         fields = '__all__'
