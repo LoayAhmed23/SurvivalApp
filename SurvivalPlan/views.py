@@ -19,7 +19,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
-from django.db import connection, reset_queries  # SQL DEBUG
+#from django.db import connection, reset_queries  # SQL DEBUG
 
 
 class CustomPagination(PageNumberPagination):
@@ -117,7 +117,7 @@ class SurvivalPlanGoalsView(APIView):
     """View to list goals for a survival plan and if they are completed or not"""
 
     def get(self, request, pk):
-        reset_queries()  # SQL DEBUG
+        #reset_queries()  # SQL DEBUG
 
         try:
             plan = SurvivalPlan.objects.get(pk=pk, user=request.user)
@@ -155,8 +155,8 @@ class SurvivalPlanGoalsView(APIView):
                 'achieved': achieved
             })
 
-        for q in connection.queries:  # SQL DEBUG
-            print(q['sql'], "\n", q['time'], "\n")  # SQL DEBUG
+        #for q in connection.queries:  # SQL DEBUG
+        #    print(q['sql'], "\n", q['time'], "\n")  # SQL DEBUG
 
         return Response(data)
 
