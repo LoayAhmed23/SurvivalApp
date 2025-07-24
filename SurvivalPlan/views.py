@@ -122,7 +122,7 @@ class SurvivalPlanGoalsView(APIView):
         try:
             plan = SurvivalPlan.objects.get(pk=pk, user=request.user)
         except SurvivalPlan.DoesNotExist:
-            return Response({'detail': 'Plan not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response('Plan not found.', status=status.HTTP_404_NOT_FOUND)
         goals = plan.goals.all()
         data = []
         month_expenses = Expense.objects.filter(
@@ -168,13 +168,13 @@ class SurvivalPlanGoalDetailView(APIView):
         try:
             plan = SurvivalPlan.objects.get(pk=pk, user=request.user)
         except SurvivalPlan.DoesNotExist:
-            return Response({'detail': 'Plan not found.'},
+            return Response("Plan not found.",
                             status=status.HTTP_404_NOT_FOUND)
 
         try:
             goal = plan.goals.get(pk=goal_pk)
         except Goal.DoesNotExist:
-            return Response({'detail': 'Goal not found in this plan.'},
+            return Response("Goal not found in this plan.",
                             status=status.HTTP_404_NOT_FOUND)
 
         if goal.type == 'save_amount' or goal.type == 'save_percent':
